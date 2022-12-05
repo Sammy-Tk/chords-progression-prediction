@@ -253,7 +253,8 @@ def train():
 
 
 def pred(song: list = None,
-         n_chords=4) -> str:
+         n_chords=4,
+         randomness=1) -> str:
     """
     Make a prediction using the latest trained model
     """
@@ -271,46 +272,43 @@ def pred(song: list = None,
     if song is None:
         song = ['G', 'D', 'G', 'D', 'Am', 'F', 'Em', 'F#',]
 
-    def get_predicted_chord(song):
-        # Convert chords to numbers (tokens)
+    def get_predicted_chord(song, randomness=1):
+        # Convert chords to numbers
         song_convert = [chord_to_id[chord] for chord in song]
 
         # Return an array of size vocab_size, with the probabilities
         pred = model.predict([song_convert], verbose=0)
-        # Return the index of the highest probability
-        pred_class = np.argmax(pred[0])
+        # Return the index of nth probability
+        pred_class = np.argsort(np.max(pred, axis=0))[-randomness]
         # Turn the index into a chord
         pred_chord = id_to_chord[pred_class]
 
         return pred_chord
 
-    def repeat_prediction(song, repetition):
+    def repeat_prediction(song, n_chords, randomness=1):
         song_tmp = song
-        for i in range(repetition):
-            predicted_chord = get_predicted_chord(song_tmp)
+        for i in range(n_chords):
+            predicted_chord = get_predicted_chord(song_tmp, randomness=randomness)
             song_tmp.append(predicted_chord)
-            #song_tmp = song_tmp[1:]
 
         return song_tmp
 
-    # Return the chord with (n)th probability
-    def output_nth_chord_pred(n):
-        return id_to_chord[np.argsort(np.max(pred, axis=0))[-n]]
-
     # Return dictionary of the chords with n(th) probability
-    def outputs_next_chord(chords, n):
+    def output_nth_chord_pred(song, n):
+        # Convert chords to numbers
+        song_convert = [chord_to_id[chord] for chord in song]
+        # Return an array of size vocab_size, with the probabilities
+        pred = model.predict([song_convert], verbose=0)
         next_chord_dict = {}
         for i in range(n):
-            next_chord_dict[f"{i+1}th_pred_chord"] = output_nth_chord_pred(i+1)
+            next_chord_dict[f"{i+1}th_pred_chord"] = id_to_chord[np.argsort(np.max(pred, axis=0))[-(i+1)]]
         return next_chord_dict
 
-    chord_pred = get_predicted_chord(song)
-    print("\n✅ predicted next chord: ", chord_pred)
+    chord_pred = get_predicted_chord(song=song, randomness=randomness)
+    print(f"\n✅ predicted next chord witn randomness {randomness}: ", chord_pred)
 
-    n_chords_pred = repeat_prediction(song, n_chords)
-    print(f"\n✅ predicted {n_chords} next chords: ", n_chords_pred)
-
-    outputs_next_chords = outputs_next_chord()
+    n_chords_pred = repeat_prediction(song=song, n_chords=n_chords, randomness=randomness)
+    print(f"\n✅ predicted {n_chords} next chords witn randomness {randomness}: ", n_chords_pred)
 
     return chord_pred
 
@@ -318,7 +316,7 @@ def pred(song: list = None,
 if __name__ == '__main__':
     # preprocess()
     # preprocess(source_type='val')
-    train()
+    # train()
     song = ['Cm', 'Bb', 'Ab', 'G7', 'Cm', 'Bb', 'Ab', 'G7']
-    pred(song=song, n_chords=10)
+    pred(song=song, n_chords=10, randomness=20)
     # evaluate()
