@@ -216,22 +216,17 @@ def pred(song: list = None,
 
     def repeat_prediction(song, n_chords, randomness=1):
         song_tmp = song
-        for i in range(n_chords):
-            predicted_chord = get_predicted_chord(song_tmp, randomness=randomness)
-            song_tmp.append(predicted_chord)
+        if randomness == 1:
+            for i in range(n_chords):
+                predicted_chord = get_predicted_chord(song_tmp, randomness=randomness)
+                song_tmp.append(predicted_chord)
+        else:
+            random_list = np.random.randint(low=1, high=randomness+1, size=n_chords, dtype=int)
+            for i in range(n_chords):
+                predicted_chord = get_predicted_chord(song_tmp, randomness=random_list[i])
+                song_tmp.append(predicted_chord)
 
         return song_tmp
-
-    # Return dictionary of the chords with n(th) probability
-    def output_nth_chord_pred(song, n):
-        # Convert chords to numbers
-        song_convert = [chord_to_id[chord] for chord in song]
-        # Return an array of size vocab_size, with the probabilities
-        pred = model.predict([song_convert], verbose=0)
-        next_chord_dict = {}
-        for i in range(n):
-            next_chord_dict[f"{i+1}th_pred_chord"] = id_to_chord[np.argsort(np.max(pred, axis=0))[-(i+1)]]
-        return next_chord_dict
 
     chord_pred = get_predicted_chord(song=song, randomness=randomness)
     print(f"\n✅ predicted next chord witn randomness {randomness}: ", chord_pred)
@@ -243,9 +238,10 @@ def pred(song: list = None,
 
 
 if __name__ == '__main__':
-    # preprocess()
+    #preprocess()
     # preprocess(source_type='val')
-    # train()
-    song = ['Cm', 'Bb', 'Ab', 'G7', 'Cm', 'Bb', 'Ab', 'G7']
-    pred(song=song, n_chords=10, randomness=20)
+    #train()
+    #song = ['Cm', 'Bb', 'Ab', 'G7', 'Cm', 'Bb', 'Ab', 'G7']
+    song = ['G', 'D', 'G', 'D', 'Am', 'F', 'Em', 'F#']
+    pred(song=song, n_chords=10, randomness=10)
     # evaluate()
