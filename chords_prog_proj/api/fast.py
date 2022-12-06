@@ -1,16 +1,9 @@
-# from datetime import datetime
-# # $WIPE_BEGIN
-# import pytz
-# import pandas as pd
-
-# from taxifare.ml_logic.registry import load_model
-# from taxifare.ml_logic.preprocessor import preprocess_features
-# # $WIPE_END
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from chords_prog_proj.ml_logic.load_model import load_model_local
+from chords_prog_proj.interface.main import pred
+from chords_prog_proj.ml_logic.registry import load_model
 
 import random
 import numpy as np
@@ -26,56 +19,66 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# $WIPE_BEGIN
-# 💡 Preload the model to accelerate the predictions
-# We want to avoid loading the heavy deep-learning model from MLflow at each `get("/predict")`
-# The trick is to load the model in memory when the uvicorn server starts
-# Then to store the model in an `app.state.model` global variable accessible across all routes!
-# This will prove very useful for demo days
-app.state.model = load_model()
-# $WIPE_END
 
 @app.get("/predict_baseline")
-def predict(chords: str):
+def predict_baseline(chords: str):
     i = random.randint(0,1)
     if i == 0:
         return {'The next chord is': 'C'}
     else:
         return {'The next chord is': 'G'}
 
-model = load_model_local('v1')
 
 @app.get("/predict")
-def predict(input_chords: str,  #'G,B,F'
-            ):
+def predict(song, n_chords, randomness):
     """
-    predict taxi fare api
+    Make a prediction using the latest trained model
     """
-    input_chords = input_chords.split(",")
+    song = song.split(',')
+    n_chords = int(n_chords)
+    randomness = int(randomness)
 
-    # load json with tokenization dict
-    with open("chords_prog_proj/api/chord_dict.json", "r") as json_file:
+    # Load dictionary chords_to_id
+    with open("chord_to_id.json", "r") as json_file:
         chord_to_id = json.load(json_file)
 
+    # Create dictionary id_to_chord
     id_to_chord = {v: k for k, v in chord_to_id.items()}
 
-    # convert inputs into tokenized and predict
-    def get_predicted_chord(song):
+    model = load_model()
+
+    def get_predicted_chord(song, randomness=1):
         # Convert chords to numbers
         song_convert = [chord_to_id[chord] for chord in song]
 
         # Return an array of size vocab_size, with the probabilities
         pred = model.predict([song_convert], verbose=0)
-        # Return the index of the highest probability
-        pred_class = np.argmax(pred[0])
+        # Return the index of nth probability
+        pred_class = np.argsort(np.max(pred, axis=0))[-randomness]
         # Turn the index into a chord
         pred_chord = id_to_chord[pred_class]
 
         return pred_chord
 
-    predicted_chord = get_predicted_chord(input_chords)
+    def repeat_prediction(song, n_chords, randomness=1):
+        song_tmp = song
+        if randomness == 1:
+            for i in range(n_chords):
+                predicted_chord = get_predicted_chord(song_tmp, randomness=randomness)
+                song_tmp.append(predicted_chord)
+        else:
+            random_list = np.random.randint(low=1, high=randomness+1, size=n_chords, dtype=int)
+            for i in range(n_chords):
+                predicted_chord = get_predicted_chord(song_tmp, randomness=random_list[i])
+                song_tmp.append(predicted_chord)
 
-    return {'predicted_chord': predicted_chord}
+        return song_tmp
+
+    # chord_pred = get_predicted_chord(song=song, randomness=randomness)
+
+    n_chords_pred = repeat_prediction(song=song, n_chords=n_chords, randomness=randomness)
+
+    return {'predicted_chord': n_chords_pred}
 
 @app.get("/")
 def root():
