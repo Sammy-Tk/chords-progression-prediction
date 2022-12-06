@@ -14,8 +14,9 @@ LOCAL_REGISTRY_PATH = os.path.expanduser(os.environ.get("LOCAL_REGISTRY_PATH"))
 PROJECT = os.environ.get("PROJECT")
 DATASET = os.environ.get("DATASET")
 
-DATA_FILE_KAGGLE=os.environ.get("DATA_FILE_KAGGLE")
-DATA_FILE_JAZZ=os.environ.get("DATA_FILE_JAZZ")
+DATA_FILE=os.environ.get("DATA_FILE")
+RAW_FILE_KAGGLE=os.environ.get("RAW_FILE_KAGGLE")
+RAW_FILE_JAZZ=os.environ.get("RAW_FILE_JAZZ")
 
 # Use this to optimize loading of raw_data with headers: pd.read_csv(..., dtypes=..., headers=True)
 DTYPES_RAW_OPTIMIZED = {
@@ -49,19 +50,19 @@ DTYPES_PROCESSED_OPTIMIZED = np.float32
 
 ################## VALIDATIONS #################
 
-env_valid_options = dict(
-    DATASET_SIZE=["1k", "10k", "100k", "500k", "50M", "new"],
-    VALIDATION_DATASET_SIZE=["1k", "10k", "100k", "500k", "500k", "new"],
-    DATA_SOURCE=["local", "big query"],
-    MODEL_TARGET=["local", "gcs", "mlflow"],
-    PREFECT_BACKEND=["development", "production"],
-)
+# env_valid_options = dict(
+#     DATASET_SIZE=["1k", "10k", "100k", "500k", "50M", "new"],
+#     VALIDATION_DATASET_SIZE=["1k", "10k", "100k", "500k", "500k", "new"],
+#     DATA_SOURCE=["local", "big query"],
+#     MODEL_TARGET=["local", "gcs", "mlflow"],
+#     PREFECT_BACKEND=["development", "production"],
+# )
 
-def validate_env_value(env, valid_options):
-    env_value = os.environ[env]
-    if env_value not in valid_options:
-        raise NameError(f"Invalid value for {env} in `.env` file: {env_value} must be in {valid_options}")
+# def validate_env_value(env, valid_options):
+#     env_value = os.environ[env]
+#     if env_value not in valid_options:
+#         raise NameError(f"Invalid value for {env} in `.env` file: {env_value} must be in {valid_options}")
 
 
-for env, valid_options in env_valid_options.items():
-    validate_env_value(env, valid_options)
+# for env, valid_options in env_valid_options.items():
+#     validate_env_value(env, valid_options)

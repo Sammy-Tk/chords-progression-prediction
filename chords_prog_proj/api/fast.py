@@ -30,12 +30,13 @@ def predict_baseline(chords: str):
 
 
 @app.get("/predict")
-def predict(song: list = None,
-         n_chords=4,
-         randomness=1) -> str:
+def predict(song, n_chords, randomness):
     """
     Make a prediction using the latest trained model
     """
+    song = song.split(',')
+    n_chords = int(n_chords)
+    randomness = int(randomness)
 
     # Load dictionary chords_to_id
     with open("chord_to_id.json", "r") as json_file:
@@ -45,9 +46,6 @@ def predict(song: list = None,
     id_to_chord = {v: k for k, v in chord_to_id.items()}
 
     model = load_model()
-
-    if song is None:
-        song = ['G', 'D', 'G', 'D', 'Am', 'F', 'Em', 'F#',]
 
     def get_predicted_chord(song, randomness=1):
         # Convert chords to numbers
@@ -76,11 +74,11 @@ def predict(song: list = None,
 
         return song_tmp
 
-    chord_pred = get_predicted_chord(song=song, randomness=randomness)
+    # chord_pred = get_predicted_chord(song=song, randomness=randomness)
 
     n_chords_pred = repeat_prediction(song=song, n_chords=n_chords, randomness=randomness)
 
-    return {'predicted_chord': chord_pred}
+    return {'predicted_chord': n_chords_pred}
 
 @app.get("/")
 def root():

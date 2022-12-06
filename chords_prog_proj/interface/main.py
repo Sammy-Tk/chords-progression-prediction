@@ -9,7 +9,7 @@ from colorama import Fore, Style
 from tensorflow.keras.utils import to_categorical
 
 from chords_prog_proj.ml_logic.model import initialize_model, compile_model, train_model, evaluate_model
-from chords_prog_proj.ml_logic.params import CHUNK_SIZE, DATASET_SIZE, VALIDATION_DATASET_SIZE, LOCAL_DATA_PATH, DATA_FILE_KAGGLE, DATA_FILE_JAZZ
+from chords_prog_proj.ml_logic.params import CHUNK_SIZE, DATASET_SIZE, VALIDATION_DATASET_SIZE, LOCAL_DATA_PATH, DATA_FILE
 from chords_prog_proj.ml_logic.registry import get_model_version
 from chords_prog_proj.ml_logic.preprocessor import preprocess
 
@@ -31,15 +31,16 @@ def train():
     # function create_dataset
     number_of_samples = 500000
 
-    def csv_to_concat_df(csv_1, csv_2):
-        df_1 = pd.read_csv(csv_1)
-        df_2 = pd.read_csv(csv_2)
-        return pd.concat([df_1, df_2],axis=0,ignore_index=True)
+    # def csv_to_concat_df(csv_1, csv_2):
+    #     df_1 = pd.read_csv(csv_1)
+    #     df_2 = pd.read_csv(csv_2)
+    #     return pd.concat([df_1, df_2],axis=0,ignore_index=True)
+    # path_csv_1 = os.path.join(os.getcwd(), LOCAL_DATA_PATH, "processed", DATA_FILE_KAGGLE)
+    # path_csv_2 = os.path.join(os.getcwd(), LOCAL_DATA_PATH, "processed", DATA_FILE_JAZZ)
+    #df = csv_to_concat_df(path_csv_1, path_csv_2)
 
-    path_csv_1 = os.path.join(os.getcwd(), LOCAL_DATA_PATH, "processed", DATA_FILE_KAGGLE)
-    path_csv_2 = os.path.join(os.getcwd(), LOCAL_DATA_PATH, "processed", DATA_FILE_JAZZ)
-
-    df = csv_to_concat_df(path_csv_1, path_csv_2)
+    path_csv = os.path.join(os.getcwd(), LOCAL_DATA_PATH, "processed", DATA_FILE)
+    df = pd.read_csv(path_csv)
 
     # Convert strings to lists
     df['chords'] = df['chords'].apply(ast.literal_eval)
@@ -131,7 +132,7 @@ def train():
 
     # Model params
     learning_rate = 0.001
-    epochs = 2
+    epochs = 15
     batch_size = 256
     patience = 15
     output_dim = 50
@@ -240,7 +241,7 @@ def pred(song: list = None,
 if __name__ == '__main__':
     #preprocess()
     # preprocess(source_type='val')
-    #train()
+    train()
     #song = ['Cm', 'Bb', 'Ab', 'G7', 'Cm', 'Bb', 'Ab', 'G7']
     song = ['G', 'D', 'G', 'D', 'Am', 'F', 'Em', 'F#']
     pred(song=song, n_chords=10, randomness=10)

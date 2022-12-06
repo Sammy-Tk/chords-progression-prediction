@@ -15,7 +15,7 @@ import re
 import numpy as np
 from itertools import groupby
 
-from chords_prog_proj.ml_logic.params import DATA_FILE_KAGGLE, DATA_FILE_JAZZ
+from chords_prog_proj.ml_logic.params import RAW_FILE_KAGGLE, RAW_FILE_JAZZ
 
 
 '''
@@ -23,13 +23,13 @@ GET LOCAL DATA
 '''
 def get_csv_data():
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    data_path = os.path.join(root_path, 'mlops/data/raw', DATA_FILE_KAGGLE)
+    data_path = os.path.join(root_path, 'mlops/data/raw', RAW_FILE_KAGGLE)
     raw_csv_df = pd.read_csv(data_path)
     return raw_csv_df
 
 def get_text_data():
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    data_path = os.path.join(root_path, 'mlops/data/raw', DATA_FILE_JAZZ)
+    data_path = os.path.join(root_path, 'mlops/data/raw', RAW_FILE_JAZZ)
     raw_txt_df = pd.read_csv(data_path, sep="_START_|_END_", header=None, engine='python').T
     return raw_txt_df
 
