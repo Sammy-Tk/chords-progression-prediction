@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import time
 
 from chords_prog_proj.ml_logic.data import get_csv_data, get_text_data, expand_cols, \
             drop_cols, clean_chords, new_columns, song_length, genre_cleaning, \
@@ -20,7 +21,7 @@ def pre_clean():
     slim_kaggle_df = drop_cols(raw_kaggle_df)
     concat_df = pd.concat([slim_kaggle_df, raw_jazz_df], ignore_index=True)
 
-    print(f'\n✅ Data read and merged, with {len(concat_df)} rows.')
+    print(f'\n✅ Data read and merged, with {len(concat_df)} songs.')
 
     return concat_df
 
@@ -34,8 +35,7 @@ def clean(concat_df):
     cleaned_chords_column = clean_chords(cleaned_df['chords'])
     cleaned_df['chords'] = cleaned_chords_column
 
-    print(f'\n✅ Data cleaned, {len(cleaned_df)} of {len(concat_df)} \
-        rows kept during cleaning.')
+    print(f'\n✅ Chords cleaned.')
 
     return cleaned_df
 
@@ -49,6 +49,7 @@ def preprocess(get_distributions=False):
 
     concat_df = pre_clean()
 
+    print(f'\n✅ Cleaning chords... may take up to 1 minute.')
     cleaned_df = clean(concat_df)
 
     # drop duplicates based on chords and song name
@@ -72,6 +73,8 @@ def preprocess(get_distributions=False):
     song_len_df = song_length(clean_genres_df)
     final_df = filter_length(song_len_df, 8)
 
+    print(f'{len(final_df)} of {len(concat_df)} songs kept during preprocessing.')
+
     if get_distributions == False:
         pass
     else:
@@ -86,15 +89,10 @@ def preprocess(get_distributions=False):
 
     # send to csv
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    data_proc_folder = os.path.join(root_path, 'chords_prog_proj/mlops/data/processed')
+    data_proc_folder = os.path.join(root_path, 'mlops/data/processed')
 
-    i = 1
-    for file in os.listdir(data_proc_folder):
-        if i in file:
-            pass
-            i += 1
-        else:
-            df_to_csv(final_df, i, data_proc_folder)
+    ts = time.strftime("%d-%m-%y_%H:%M")
+    df_to_csv(final_df, ts, data_proc_folder)
 
     print(f'\n✅ Preprocessor finished.')
 

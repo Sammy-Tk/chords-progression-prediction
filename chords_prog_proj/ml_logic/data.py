@@ -23,13 +23,13 @@ GET LOCAL DATA
 '''
 def get_csv_data():
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    data_path = os.path.join(root_path, 'chords_prog_proj/mlops/data/raw', DATA_FILE_KAGGLE)
+    data_path = os.path.join(root_path, 'mlops/data/raw', DATA_FILE_KAGGLE)
     raw_csv_df = pd.read_csv(data_path)
     return raw_csv_df
 
 def get_text_data():
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    data_path = os.path.join(root_path, 'chords_prog_proj/mlops/data/raw', DATA_FILE_JAZZ)
+    data_path = os.path.join(root_path, 'mlops/data/raw', DATA_FILE_JAZZ)
     raw_txt_df = pd.read_csv(data_path, sep="_START_|_END_", header=None, engine='python').T
     return raw_txt_df
 
@@ -290,9 +290,9 @@ def filter_length(song_len_df, min_length):
 '''
 SEND CLEAN DF TO CVS
 '''
-def df_to_csv(final_df, version, save_path):
+def df_to_csv(final_df, ts, save_path):
 
-    filename = 'final_df' + '_v' + version + '.csv'
+    filename = 'final_df' + '_' + ts + '.csv'
     # how do i get an object to the a string of it's name?
     my_path = os.path.join(save_path, filename)
 
