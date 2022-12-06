@@ -1,57 +1,80 @@
-import time
-import tracemalloc
-
-from chords_prog_proj.ml_logic.params import DATASET_SIZE
-
-def get_dataset_timestamp(df=None):
-    """
-    Retrieve the date of the latest available datapoint, at monthly granularity
-    """
-
-    import pandas as pd
-    from taxifare.ml_logic.data import get_chunk
-
-    if df is None:
-        # Trick specific to this taxifare challenge:
-        # Query simply one row from the TRAIN_DATASET, it's enough to deduce the latest datapoint available
-        df = get_chunk(source_name=f"train_{DATASET_SIZE}",
-                       index=0,
-                       chunk_size=1,
-                       verbose=False)
-
-    # retrieve first row timestamp
-    ts = pd.to_datetime(df.pickup_datetime[:1])[0]
-
-    if ts.year < 2015:
-        # Trick specific to this taxifare challenge:
-        # We can consider all past training dataset to stop at 2014-12.
-        # New datapoints will start to be collected month by month starting 2015-01
-        ts = ts.replace(year=2014, month=12)
-
-    # adjust date to monthly granularity
-    ts = ts.replace(day=1, hour=0, minute=0, second=0, microsecond=0, nanosecond=0)
-
-    return ts
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from collections import Counter
 
 
-def simple_time_and_memory_tracker(method):
 
-    # ### Log Level
-    # 0: Nothing
-    # 1: Print Time and Memory usage of functions
-    LOG_LEVEL = 1
+'''
+GET CHORD COUNT & OPTIONAL DISTRIBUTION
+'''
+def count_chords(final_df, low_freq_to_remove=10, histplot=False, ascending=False):
 
-    def method_with_trackers(*args, **kw):
-        ts = time.time()
-        tracemalloc.start()
-        result = method(*args, **kw)
-        _, peak = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-        te = time.time()
-        duration = te - ts
-        if LOG_LEVEL > 0:
-            output = f"{method.__qualname__} executed in {round(duration, 2)} seconds, using up to {round(peak / 1024**2,2)}MB of RAM"
-            print(output)
-        return result
+    chords_count_dict = {}
+    for song in final_df['chords']:
+        song_dict = dict(Counter(song))
+        for chord, count in song_dict.items():
+            if chord in chords_count_dict:
+                chords_count_dict[chord] = chords_count_dict[chord] + count
+            else:
+                chords_count_dict[chord] = count
 
-    return method_with_trackers
+    slim_chord_counts_dict = {}
+    for chord, count in chords_count_dict.items():
+        if count <= low_freq_to_remove:
+            pass
+        else:
+            slim_chord_counts_dict[chord] = count
+
+    if histplot == True:
+        chords_fig = sns.histplot(slim_chord_counts_dict, bins=100)
+        chords_fig.set_xlabel('chord appearance')
+        plt.show()
+    else:
+        pass
+
+    chord_count_df = pd.Series(slim_chord_counts_dict).to_frame('chord_count')
+    chord_count_df.sort_values(by='chord_count', ascending=ascending, inplace=True)
+
+    return chord_count_df
+
+
+'''
+GET GENRE DISTRIBUTION
+'''
+def count_genres(final_df, histplot=False):
+
+    genre_count_ser = final_df['genres'].value_counts()
+
+    genre_count_df = genre_count_ser.to_frame('genre_count')
+
+    genre_count_df.sort_values(by='genre_count', ascending=False, inplace=True)
+
+    if histplot == True:
+        genres_fig = sns.histplot(genre_count_df, bins=100)
+        genres_fig.set(xticklabels=[])
+        genres_fig.set_xlabel('genres')
+        plt.show()
+    else:
+        pass
+
+    return genre_count_df
+
+
+'''
+GET ARTIST DISTRIBUTION
+'''
+def count_artists(final_df, histplot=False):
+
+    artist_count_ser = final_df['artist_name'].value_counts()
+
+    artist_count_df = artist_count_ser.to_frame('artist_count')
+
+    artist_count_df.sort_values(by='artist_count', ascending=False, inplace=True)
+
+    if histplot == True:
+        artists_fig = sns.histplot(final_df['artist_name'], bins=100)
+        artists_fig.set(xticklabels=[])
+        artists_fig.set_xlabel('artists')
+        plt.show()
+    return artist_count_df

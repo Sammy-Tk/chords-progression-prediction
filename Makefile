@@ -5,7 +5,7 @@ reinstall_package:
 	@pip install -e .
 
 run_preprocess:
-	python -c 'from chords_prog_proj.interface.main import preprocess; preprocess(); preprocess(source_type="val")'
+	python -c 'from chords_prog_proj.ml_logic.preprocessor import preprocess; preprocess(get_distributions=False)'
 
 run_train:
 	python -c 'from chords_prog_proj.interface.main import train; train()'
