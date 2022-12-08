@@ -184,7 +184,8 @@ def train():
 
 def pred(song: list = None,
          n_chords=4,
-         randomness=1) -> str:
+         randomness=1,
+         model=None) -> str:
     """
     Make a prediction using the latest trained model
     """
@@ -197,7 +198,8 @@ def pred(song: list = None,
     # Create dictionary id_to_chord
     id_to_chord = {v: k for k, v in chord_to_id.items()}
 
-    model = load_model()
+    if model is None:
+        model = load_model()
 
     if song is None:
         song = ['G', 'D', 'G', 'D', 'Am', 'F', 'Em', 'F#',]
@@ -235,7 +237,7 @@ def pred(song: list = None,
     n_chords_pred = repeat_prediction(song=song, n_chords=n_chords, randomness=randomness)
     print(f"\n✅ predicted {n_chords} next chords witn randomness {randomness}: ", n_chords_pred)
 
-    return chord_pred
+    return n_chords_pred
 
 
 if __name__ == '__main__':
@@ -244,5 +246,5 @@ if __name__ == '__main__':
     train()
     #song = ['Cm', 'Bb', 'Ab', 'G7', 'Cm', 'Bb', 'Ab', 'G7']
     song = ['G', 'D', 'G', 'D', 'Am', 'F', 'Em', 'F#']
-    pred(song=song, n_chords=10, randomness=10)
+    #pred(song=song, n_chords=10, randomness=10)
     # evaluate()
