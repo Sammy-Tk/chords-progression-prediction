@@ -218,7 +218,7 @@ def clean_chords(chords_column):
         clean_song = [chord for chord in non_repeating_chords if len(chord) > 0]
         clean_song = [chord for chord in clean_song if chord[0] in letters]
 
-        cleaned.append(clean_song)
+        cleaned.append(non_repeating_chords)
 
     return cleaned
 
@@ -299,3 +299,5 @@ def df_to_csv(final_df, ts, save_path):
     final_df.to_csv(my_path)
 
     return print(f'{filename} saved to {save_path}')
+
+#EC
