@@ -243,8 +243,9 @@ def pred(song: list = None,
 if __name__ == '__main__':
     #preprocess()
     # preprocess(source_type='val')
-    train()
-    #song = ['Cm', 'Bb', 'Ab', 'G7', 'Cm', 'Bb', 'Ab', 'G7']
-    song = ['G', 'D', 'G', 'D', 'Am', 'F', 'Em', 'F#']
-    #pred(song=song, n_chords=10, randomness=10)
+    # train()
+    pred_song = json.loads(os.environ['PREDICT_SONG'])
+    pred_n_chords = json.loads(os.environ['PREDICT_N_CHORDS'])
+    pred_randomness = json.loads(os.environ['PREDICT_RANDOMNESS'])
+    pred(song=pred_song, n_chords=pred_n_chords, randomness=pred_randomness)
     # evaluate()

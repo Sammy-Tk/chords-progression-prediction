@@ -46,46 +46,6 @@ def predict(song, n_chords, randomness):
 
     return {'predicted_chord': n_chords_pred}
 
-    # # Load dictionary chords_to_id
-    # with open("chord_to_id.json", "r") as json_file:
-    #     chord_to_id = json.load(json_file)
-
-    # # Create dictionary id_to_chord
-    # id_to_chord = {v: k for k, v in chord_to_id.items()}
-
-    # model = load_model()
-
-    # def get_predicted_chord(song, randomness=1):
-    #     # Convert chords to numbers
-    #     song_convert = [chord_to_id[chord] for chord in song]
-
-    #     # Return an array of size vocab_size, with the probabilities
-    #     pred = model.predict([song_convert], verbose=0)
-    #     # Return the index of nth probability
-    #     pred_class = np.argsort(np.max(pred, axis=0))[-randomness]
-    #     # Turn the index into a chord
-    #     pred_chord = id_to_chord[pred_class]
-
-    #     return pred_chord
-
-    # def repeat_prediction(song, n_chords, randomness=1):
-    #     song_tmp = song
-    #     if randomness == 1:
-    #         for i in range(n_chords):
-    #             predicted_chord = get_predicted_chord(song_tmp, randomness=randomness)
-    #             song_tmp.append(predicted_chord)
-    #     else:
-    #         random_list = np.random.randint(low=1, high=randomness+1, size=n_chords, dtype=int)
-    #         for i in range(n_chords):
-    #             predicted_chord = get_predicted_chord(song_tmp, randomness=random_list[i])
-    #             song_tmp.append(predicted_chord)
-
-    #     return song_tmp
-
-    # # chord_pred = get_predicted_chord(song=song, randomness=randomness)
-
-    # n_chords_pred = repeat_prediction(song=song, n_chords=n_chords, randomness=randomness)
-
 
 @app.get("/")
 def root():
