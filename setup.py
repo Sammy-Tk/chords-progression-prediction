@@ -5,11 +5,11 @@ with open("requirements.txt") as f:
     content = f.readlines()
 requirements = [x.strip() for x in content if "git+" not in x]
 
-setup(name='chords-prog-proj',
-      version="0.0.3",
+setup(name='chords-progression',
+      version="0.0.4",
       description="Chord Progression Prediction",
       license="MIT",
-      author="Sammy El Takriti",
+      author="Sammy El Takriti, Emily Cardwell, Ayan Issakhanov, Cyprien Boullié",
       author_email="seltakriti@gmail.com",
       url="_",
       install_requires=requirements,
