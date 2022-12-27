@@ -29,7 +29,7 @@ def train():
     # function get_X_y
     length = 12
     # function create_dataset
-    number_of_samples = 500000
+    number_of_samples = 5000
 
     # def csv_to_concat_df(csv_1, csv_2):
     #     df_1 = pd.read_csv(csv_1)
@@ -128,7 +128,6 @@ def train():
     # Load model
     model = None
     model = load_model()  # production model
-    # model = load_model('model_v1')
 
     # Model params
     learning_rate = 0.001
@@ -163,6 +162,9 @@ def train():
         learning_rate=learning_rate,
         batch_size=batch_size,
         patience=patience,
+
+        # Dataset size
+        number_of_samples=number_of_samples,
 
         # Package behavior
         context="train",
@@ -243,9 +245,7 @@ def pred(song: list = None,
 if __name__ == '__main__':
     #preprocess()
     # preprocess(source_type='val')
-    # train()
-    pred_song = json.loads(os.environ['PREDICT_SONG'])
-    pred_n_chords = json.loads(os.environ['PREDICT_N_CHORDS'])
-    pred_randomness = json.loads(os.environ['PREDICT_RANDOMNESS'])
-    pred(song=pred_song, n_chords=pred_n_chords, randomness=pred_randomness)
+    train()
+    # pred_song = ["Em", "F#"]
+    # pred(song=pred_song, n_chords=10, randomness=8)
     # evaluate()

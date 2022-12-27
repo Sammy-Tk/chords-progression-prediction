@@ -12,6 +12,9 @@ protobuf==3.20
 google-cloud-storage
 pyarrow
 
+#mlflow~=1.26.1
+mlflow
+
 python-dotenv
 prefect<2
 prefect[viz]

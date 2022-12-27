@@ -2,6 +2,7 @@ from chords_prog_proj.ml_logic.params import LOCAL_REGISTRY_PATH
 
 import mlflow
 from mlflow.tracking import MlflowClient
+import mlflow.keras
 
 import glob
 import os
@@ -46,9 +47,9 @@ def save_model(model: Model = None,
             # STEP 3: push model to mlflow
             if model is not None:
 
-                mlflow.keras.log_model(keras_model=model,
+                mlflow.keras.log_model(model=model,
                                        artifact_path="model",
-                                       keras_module="tensorflow.keras",
+                                    #    keras_module="tensorflow.keras",
                                        registered_model_name=mlflow_model_name)
 
         print("\n✅ data saved to mlflow")
