@@ -15,8 +15,9 @@ PROJECT = os.environ.get("PROJECT")
 DATASET = os.environ.get("DATASET")
 
 DATA_FILE=os.environ.get("DATA_FILE")
-RAW_FILE_KAGGLE=os.environ.get("RAW_FILE_KAGGLE")
-RAW_FILE_JAZZ=os.environ.get("RAW_FILE_JAZZ")
+
+DATA_FILE_KAGGLE_RAW=os.environ.get("DATA_FILE_KAGGLE_RAW")
+DATA_FILE_LSTM_REALBOOK_RAW=os.environ.get("DATA_FILE_LSTM_REALBOOK_RAW")
 
 # Use this to optimize loading of raw_data with headers: pd.read_csv(..., dtypes=..., headers=True)
 DTYPES_RAW_OPTIMIZED = {
