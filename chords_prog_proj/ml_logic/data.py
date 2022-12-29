@@ -1,11 +1,4 @@
-# from chords_prog_proj.ml_logic.params import (COLUMN_NAMES_RAW,
-#                                             DTYPES_RAW_OPTIMIZED,
-#                                             DTYPES_RAW_OPTIMIZED_HEADLESS,
-#                                             DTYPES_PROCESSED_OPTIMIZED
-#                                             )
-
 # from chords_prog_proj.data_sources.local_disk import (get_pandas_chunk, save_local_chunk)
-
 # from chords_prog_proj.data_sources.big_query import (get_bq_chunk, save_bq_chunk)
 
 import os
@@ -15,24 +8,64 @@ import re
 import numpy as np
 from itertools import groupby
 
-from chords_prog_proj.ml_logic.params import RAW_FILE_KAGGLE, RAW_FILE_JAZZ
+from colorama import Fore, Style
 
+from kaggle.api.kaggle_api_extended import KaggleApi
+import zipfile
+import urllib.request
+
+from chords_prog_proj.ml_logic.params import (LOCAL_DATA_PATH, DATA_FILE_KAGGLE_RAW, DATA_FILE_LSTM_REALBOOK_RAW)
 
 '''
 GET LOCAL DATA
 '''
-def get_csv_data():
+def get_data_kaggle():
+
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    data_path = os.path.join(root_path, 'mlops/data/raw', RAW_FILE_KAGGLE)
+    data_path = os.path.join(root_path, LOCAL_DATA_PATH, 'raw', DATA_FILE_KAGGLE_RAW)
+
+    # If the raw file does not exist, download it from Kaggle.
+    # This requires an API key to authenticate to Kaggle.
+    # To set up your API Key: go to your Kaggle account Tab at https://www.kaggle.com/<username>/account
+    # click ‘Create API Token’. A file named kaggle.json will be downloaded - move this file to ~/.kaggle/
+    if not os.path.exists(data_path):
+        print(Fore.BLUE + "\nDownloading csv file from Kaggle..." + Style.RESET_ALL)
+        api = KaggleApi()
+        api.authenticate()
+        # Download file chords_and_lyrics.csv.zip
+        api.dataset_download_file('eitanbentora/chords-and-lyrics-dataset',
+                                file_name='chords_and_lyrics.csv')
+
+        # Extract zip file into the directory "data/raw"
+        with zipfile.ZipFile("chords_and_lyrics.csv.zip", "r") as zipref:
+            zipref.extractall(path=os.path.join(root_path, LOCAL_DATA_PATH, 'raw'))
+
+        # Rename extracted csv file
+        os.rename(os.path.join(root_path, LOCAL_DATA_PATH, "raw", "chords_and_lyrics.csv"),
+                os.path.join(root_path, LOCAL_DATA_PATH, "raw", DATA_FILE_KAGGLE_RAW))
+
+        # Delete zip file
+        if os.path.exists("chords_and_lyrics.csv.zip"):
+            os.remove("chords_and_lyrics.csv.zip")
+        else:
+            print("The zip file does not exist")
+
     raw_csv_df = pd.read_csv(data_path)
     return raw_csv_df
 
-def get_text_data():
+def get_data_lstm_realbook():
+
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    data_path = os.path.join(root_path, 'mlops/data/raw', RAW_FILE_JAZZ)
+    data_path = os.path.join(root_path, LOCAL_DATA_PATH, 'raw', DATA_FILE_LSTM_REALBOOK_RAW)
+
+    # If the raw file does not exist, download it
+    if not os.path.exists(data_path):
+        print(Fore.BLUE + "\nDownloading txt file..." + Style.RESET_ALL)
+        url="https://raw.githubusercontent.com/keunwoochoi/lstm_real_book/master/chord_sentences.txt"
+        urllib.request.urlretrieve(url, data_path)
+
     raw_txt_df = pd.read_csv(data_path, sep="_START_|_END_", header=None, engine='python').T
     return raw_txt_df
-
 
 '''
 TURN SINGLE CHORDS COLUMN TO DATAFRAME TO CONCAT
@@ -299,5 +332,3 @@ def df_to_csv(final_df, ts, save_path):
     final_df.to_csv(my_path)
 
     return print(f'{filename} saved to {save_path}')
-
-#EC

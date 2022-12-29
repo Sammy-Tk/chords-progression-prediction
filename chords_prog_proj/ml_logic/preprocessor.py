@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import time
 
-from chords_prog_proj.ml_logic.data import get_csv_data, get_text_data, expand_cols, \
+from chords_prog_proj.ml_logic.data import get_data_kaggle, get_data_lstm_realbook, expand_cols, \
             drop_cols, clean_chords, new_columns, song_length, genre_cleaning, \
             filter_length, df_to_csv
 from chords_prog_proj.ml_logic.utils import count_chords, count_artists, count_genres
@@ -13,8 +13,8 @@ READ DATA, PRE-CLEANING ENGINEERING AND CONCAT
 '''
 def pre_clean():
     # read data
-    raw_kaggle_df = get_csv_data()
-    raw_jazz_col = get_text_data()
+    raw_kaggle_df = get_data_kaggle()
+    raw_jazz_col = get_data_lstm_realbook()
 
     # merge
     raw_jazz_df = expand_cols(raw_jazz_col)
