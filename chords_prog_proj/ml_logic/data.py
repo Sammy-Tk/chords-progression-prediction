@@ -16,10 +16,8 @@ import urllib.request
 
 from chords_prog_proj.ml_logic.params import (LOCAL_DATA_PATH, DATA_FILE_KAGGLE_RAW, DATA_FILE_LSTM_REALBOOK_RAW)
 
-'''
-GET LOCAL DATA
-'''
 def get_data_kaggle():
+    """Get csv file"""
 
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     data_path = os.path.join(root_path, LOCAL_DATA_PATH, 'raw', DATA_FILE_KAGGLE_RAW)
@@ -54,6 +52,7 @@ def get_data_kaggle():
     return raw_csv_df
 
 def get_data_lstm_realbook():
+    """Get txt file"""
 
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     data_path = os.path.join(root_path, LOCAL_DATA_PATH, 'raw', DATA_FILE_LSTM_REALBOOK_RAW)
@@ -67,32 +66,32 @@ def get_data_lstm_realbook():
     raw_txt_df = pd.read_csv(data_path, sep="_START_|_END_", header=None, engine='python').T
     return raw_txt_df
 
-'''
-TURN SINGLE CHORDS COLUMN TO DATAFRAME TO CONCAT
-'''
+
 def expand_cols(raw_txt_df):
+    """Turn txt file with a single column that contains chords, to a dataframe """
+
     raw_txt_df.rename(columns={0: "chords"}, inplace=True)
     raw_txt_df.replace(' ', np.nan, inplace=True)
     raw_txt_df.dropna(inplace=True)
-    raw_txt_df.insert(0, 'artist_name', 'unknown', True)
-    raw_txt_df.insert(0, 'genres', 'jazz', True)
+    raw_txt_df.insert(loc=0, column='artist_name', value='unknown', allow_duplicates=True)
+    raw_txt_df.insert(loc=0, column='genres', value='jazz', allow_duplicates=True)
     raw_txt_df['song_name'] = 'unknown'
+    raw_txt_df.reset_index(drop=True, inplace=True)
+
     return raw_txt_df
 
 
-'''
-DROP DUPLICATES BASED ON SONG & ARTIST TITLES
-DROP UNWANTED COLUMNS
-'''
-def drop_cols(raw_df):
+def drop_cols(df_raw):
+    """Drop duplicates based on song and artist titles, and drop unwanted columns"""
 
-    nonrepeated_songs_df = raw_df.drop_duplicates(
+    df_nonrepeated_songs = df_raw.drop_duplicates(
                                 subset=['artist_name', 'song_name'],
                                 keep = 'first').reset_index(drop = True)
 
-    slim_df = nonrepeated_songs_df.loc[:, ['artist_name', 'genres',
+    df_slim = df_nonrepeated_songs.loc[:, ['artist_name', 'genres',
                                            'chords', 'song_name']]
-    return slim_df
+
+    return df_slim
 
 
 '''
