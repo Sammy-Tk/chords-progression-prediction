@@ -24,3 +24,4 @@ training_outputs/
 **/*.code-workspace
 
 mlops/
+noteboooks/
