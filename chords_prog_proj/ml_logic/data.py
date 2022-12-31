@@ -73,23 +73,22 @@ def expand_cols(raw_txt_df):
     raw_txt_df.rename(columns={0: "chords"}, inplace=True)
     raw_txt_df.replace(' ', np.nan, inplace=True)
     raw_txt_df.dropna(inplace=True)
+    raw_txt_df.insert(loc=0, column='song_name', value='unknown', allow_duplicates=True)
     raw_txt_df.insert(loc=0, column='artist_name', value='unknown', allow_duplicates=True)
     raw_txt_df.insert(loc=0, column='genres', value='jazz', allow_duplicates=True)
-    raw_txt_df['song_name'] = 'unknown'
     raw_txt_df.reset_index(drop=True, inplace=True)
 
     return raw_txt_df
 
 
 def drop_cols(df_raw):
-    """Drop duplicates based on song and artist titles, and drop unwanted columns"""
+    """Drop duplicates based artist id and song title, and remove unwanted columns"""
 
     df_nonrepeated_songs = df_raw.drop_duplicates(
-                                subset=['artist_name', 'song_name'],
+                                subset=['artist_id', 'song_name'],
                                 keep = 'first').reset_index(drop = True)
 
-    df_slim = df_nonrepeated_songs.loc[:, ['artist_name', 'genres',
-                                           'chords', 'song_name']]
+    df_slim = df_nonrepeated_songs.loc[:, ['genres', 'artist_name','song_name', 'chords']]
 
     return df_slim
 
@@ -205,17 +204,18 @@ def merge_chords(song):
 
     return merged_song
 
-'''
-PARENT FUNCTION FOR CLEANING
-'''
-# convert strings to lists of strings
-# filter chords by allowable first letter
-# delete special words
-# send to punctuation and merge
-# remove consecutively repeating chords
-# delete empty chords
-# delete stand-alone numbers
+
 def clean_chords(chords_column):
+    '''
+    Parent function for cleaning:
+        Convert strings to lists of strings
+        Filter chords by allowable first letter
+        Delete special words
+        Send to punctuation and merge
+        Remove consecutively repeating chords
+        Delete empty chords
+        Delete stand-alone numbers
+    '''
 
     letters = list(string.ascii_uppercase)[:7]
     cleaned = []
@@ -237,10 +237,10 @@ def clean_chords(chords_column):
             if 'chor' in chord.lower() or 'bass' in chord.lower():
                 del raw_chords[idx]
 
-        # remove symbols
+        # Remove symbols
         unsymboled_chords = punctuation(raw_chords)
 
-        # merge chords into same format
+        # Merge chords into same format
         merged_chords = merge_chords(unsymboled_chords)
 
         # Remove repeated chords

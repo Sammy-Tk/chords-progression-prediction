@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import time
+from colorama import Fore, Style
 
 from chords_prog_proj.ml_logic.data import (get_data_kaggle, get_data_lstm_realbook, expand_cols, \
             drop_cols, clean_chords, new_columns, song_length, genre_cleaning, \
@@ -9,41 +10,42 @@ from chords_prog_proj.ml_logic.utils import (count_chords, count_artists, count_
 
 
 def pre_clean():
-    """Read data, pre-cleaning engineering and concatenate"""
+    """Read data, pre-cleaning and concatenate"""
 
-    # read data
-    raw_kaggle_df = get_data_kaggle()
-    raw_jazz_col = get_data_lstm_realbook()
+    # Get raw data
+    df_kaggle_raw = get_data_kaggle()
+    df_lstm_realbook_raw = get_data_lstm_realbook()
 
-    # merge
-    raw_jazz_df = expand_cols(raw_jazz_col)
-    slim_kaggle_df = drop_cols(raw_kaggle_df)
-    concat_df = pd.concat([slim_kaggle_df, raw_jazz_df], ignore_index=True)
+    # Select columns
+    df_kaggle_selected_cols = drop_cols(df_kaggle_raw)
+    df_lstm_realbook_selected_cols = expand_cols(df_lstm_realbook_raw)
 
-    print(f'\n✅ Data read and merged, with {len(concat_df)} songs.')
+    # Concatenate dataFrames
+    df_concatenated = pd.concat([df_kaggle_selected_cols, df_lstm_realbook_selected_cols], ignore_index=True)
 
-    return concat_df
+    print(Fore.GREEN + f'\n✅ Data read and merged, with {len(df_concatenated)} songs.' + Style.RESET_ALL)
+
+    return df_concatenated
 
 
-def clean(concat_df):
-    cleaned_df = concat_df.copy()
+def clean(df_concatenated):
+    df_cleaned = df_concatenated.copy()
 
-    cleaned_chords_column = clean_chords(cleaned_df['chords'])
-    cleaned_df['chords'] = cleaned_chords_column
+    cleaned_chords_column = clean_chords(df_cleaned['chords'])
+    df_cleaned['chords'] = cleaned_chords_column
 
     print(f'\n✅ Chords cleaned.')
 
-    return cleaned_df
+    return df_cleaned
 
 
 def preprocess(get_distributions=False):
 
-    print("\n⭐️ Use case: preprocess")
+    print(Fore.BLUE + "\n⭐️ Use case: preprocess" + Style.RESET_ALL)
+    df_concatenated = pre_clean()
 
-    concat_df = pre_clean()
-
-    print(f'\n✅ Cleaning chords... may take up to 1 minute.')
-    cleaned_df = clean(concat_df)
+    print(Fore.BLUE + f'\n✅ Cleaning chords... may take up to 1 minute.' + Style.RESET_ALL)
+    cleaned_df = clean(df_concatenated)
 
     # drop duplicates based on chords and song name
     new_columns_df = new_columns(cleaned_df)
