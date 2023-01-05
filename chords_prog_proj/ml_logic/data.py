@@ -93,6 +93,21 @@ def drop_cols(df_raw):
     return df_slim
 
 
+def remove_guitar_tabs(df):
+    """Remove songs that contain guitar tabs,
+    e.g. 'B|-----1-----------1---------1-----|'
+    """
+    # We need the escape character "\|", because "|" means OR
+    character_guitar_tab = "\|-"
+
+    # Define boolean filter, and take its inverse with ~
+    filt = ~df['chords'].str.contains(character_guitar_tab)
+
+    df_without_tabs = df[filt].reset_index()
+
+    return df_without_tabs
+
+
 '''
 CLEANING
 '''
@@ -217,14 +232,18 @@ def clean_chords(chords_column):
         Delete stand-alone numbers
     '''
 
+    # Generate list ['A', 'B', 'C', 'D', 'E', 'F', 'G']
     letters = list(string.ascii_uppercase)[:7]
+
     cleaned = []
 
     column = chords_column.copy()
 
     for row in column:
-        # Convert string to list of strings
         if type(row) is str:
+            # Remove single quotes (some chords are preceded by a single quote, e.g. 'A)
+            row = row.replace("'", "")
+            # Convert string to list of strings
             song_list = row.split()
         else:
             print('error: data in row not string;', f'{type(row)}')
