@@ -3,10 +3,8 @@ import os
 import time
 from colorama import Fore, Style
 
-from chords_prog_proj.ml_logic.data import (get_data_kaggle, get_data_lstm_realbook, expand_cols, \
-            drop_cols, clean_chords, new_columns, song_length, genre_cleaning, \
-            filter_length, df_to_csv)
-from chords_prog_proj.ml_logic.utils import (count_chords, count_artists, count_genres)
+from chords_prog_proj.ml_logic.data import *
+from chords_prog_proj.ml_logic.utils import *
 
 
 def pre_clean():
@@ -23,10 +21,15 @@ def pre_clean():
     # Concatenate dataFrames
     df_concatenated = pd.concat([df_kaggle_selected_cols, df_lstm_realbook_selected_cols], ignore_index=True)
 
-    print(Fore.GREEN + f'\n✅ Data read and merged, with {len(df_concatenated)} songs.' + Style.RESET_ALL)
+    print(Fore.GREEN + f'\n✅ Data read and merged. Total: {len(df_concatenated):,} songs.' + Style.RESET_ALL)
+
+    # Remove songs that contain guitar tabs
+    df_concatenated = remove_guitar_tabs(df_concatenated)
+    print(Fore.GREEN + f'\n✅ Songs with guitar tabs removed. Total: {len(df_concatenated):,} songs.' + Style.RESET_ALL)
 
     return df_concatenated
 
+pre_clean()
 
 def clean(df_concatenated):
     df_cleaned = df_concatenated.copy()
