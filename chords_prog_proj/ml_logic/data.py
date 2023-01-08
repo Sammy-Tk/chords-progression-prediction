@@ -59,7 +59,7 @@ def get_data_lstm_realbook():
 
     # If the raw file does not exist, download it
     if not os.path.exists(data_path):
-        print(Fore.BLUE + "\nDownloading txt file..." + Style.RESET_ALL)
+        print(Fore.BLUE + "\nDownloading txt file LSTM Realbook..." + Style.RESET_ALL)
         url="https://raw.githubusercontent.com/keunwoochoi/lstm_real_book/master/chord_sentences.txt"
         urllib.request.urlretrieve(url, data_path)
 
@@ -94,7 +94,7 @@ def drop_cols(df_raw):
 
 
 def remove_guitar_tabs(df):
-    """Remove songs that contain guitar tabs,
+    """Remove songs that contain guitar tabs
     e.g. 'B|-----1-----------1---------1-----|'
     """
     # We need the escape character "\|", because "|" means OR
@@ -102,7 +102,7 @@ def remove_guitar_tabs(df):
 
     # Define boolean filter, and take its inverse with ~
     filt = ~df['chords'].str.contains(character_guitar_tab)
-
+    # Apply boolean filter to dataFrame
     df_without_tabs = df[filt].reset_index()
 
     return df_without_tabs
