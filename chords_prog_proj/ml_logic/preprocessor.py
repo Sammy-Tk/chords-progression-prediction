@@ -14,8 +14,9 @@ def pre_clean():
     df_kaggle_raw = get_data_kaggle()
     df_lstm_realbook_raw = get_data_lstm_realbook()
 
+    # Remove duplicate songs and select columns
+    df_kaggle_selected_cols = drop_cols(remove_duplicates(df_kaggle_raw))
     # Select columns
-    df_kaggle_selected_cols = drop_cols(df_kaggle_raw)
     df_lstm_realbook_selected_cols = expand_cols(df_lstm_realbook_raw)
 
     # Concatenate dataFrames

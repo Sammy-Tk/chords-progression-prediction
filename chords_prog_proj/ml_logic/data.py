@@ -48,6 +48,8 @@ def get_data_kaggle():
         else:
             print("The zip file does not exist")
 
+        print(Fore.GREEN + f"✅ Csv file from Kaggle downloaded at {os.path.join(root_path, LOCAL_DATA_PATH, 'raw', DATA_FILE_KAGGLE_RAW)}" + Style.RESET_ALL)
+
     raw_csv_df = pd.read_csv(data_path)
     return raw_csv_df
 
@@ -62,6 +64,8 @@ def get_data_lstm_realbook():
         print(Fore.BLUE + "\nDownloading txt file LSTM Realbook..." + Style.RESET_ALL)
         url="https://raw.githubusercontent.com/keunwoochoi/lstm_real_book/master/chord_sentences.txt"
         urllib.request.urlretrieve(url, data_path)
+
+        print(Fore.GREEN + f"✅ txt file from LSTM Realbook downloaded at {os.path.join(root_path, LOCAL_DATA_PATH, 'raw', DATA_FILE_LSTM_REALBOOK_RAW)}" + Style.RESET_ALL)
 
     raw_txt_df = pd.read_csv(data_path, sep="_START_|_END_", header=None, engine='python').T
     return raw_txt_df
@@ -80,17 +84,40 @@ def expand_cols(raw_txt_df):
 
     return raw_txt_df
 
+def remove_duplicates(df_raw):
+    """Drop duplicates based on artist id and the first 2 words in the song title
+    e.g. these 2 songs will be considered to have the same title: 'Rock It (prime jive)' and 'Rock It'
+    """
 
-def drop_cols(df_raw):
-    """Drop duplicates based artist id and song title, and remove unwanted columns"""
+    # Replace all special characters with whitespace
+    df_raw['song_name_first_2_words'] = df_raw['song_name'].apply(lambda x: re.sub('[\W\_]',' ', x))
 
+    # Add a column with the song name in lower case and as a list
+    # e.g.: "Ride The Wild Wind" -> [ride, the, wild, wind]
+    df_raw['song_name_first_2_words'] = df_raw['song_name_first_2_words'].str.lower().str.split()
+
+    # Select the first two elements in the list
+    # e.g. [ride, the, wild, wind] -> [ride, the]
+    df_raw['song_name_first_2_words'] = [song_name[:2] for song_name in df_raw['song_name_first_2_words']]
+
+    # Transform the list into string
+    # e.g. [ride, the] -> "ride the"
+    df_raw['song_name_first_2_words'] = df_raw['song_name_first_2_words'].apply(lambda x: ' '.join(x))
+
+    # Remove duplicates
     df_nonrepeated_songs = df_raw.drop_duplicates(
-                                subset=['artist_id', 'song_name'],
+                                subset=['artist_id', 'song_name_first_2_words'],
                                 keep = 'first').reset_index(drop = True)
 
-    df_slim = df_nonrepeated_songs.loc[:, ['genres', 'artist_name','song_name', 'chords']]
+    return df_nonrepeated_songs
 
-    return df_slim
+
+def drop_cols(df_raw):
+    """Remove unwanted columns"""
+
+    df = df_raw.loc[:, ['genres', 'artist_name','song_name', 'chords']]
+
+    return df
 
 
 def remove_guitar_tabs(df):
@@ -237,18 +264,19 @@ def clean_chords(chords_column):
 
     cleaned = []
 
-    column = chords_column.copy()
+    # column = chords_column.copy()
 
-    for row in column:
+    for row in chords_column:
         if type(row) is str:
             # Remove single quotes (some chords are preceded by a single quote, e.g. 'A)
-            row = row.replace("'", "")
+            # and the characters new tab "\\t" and new line "\\n"
+            row = row.replace("'", "").replace("\\t", " ").replace("\\n", " ")
             # Convert string to list of strings
             song_list = row.split()
         else:
             print('error: data in row not string;', f'{type(row)}')
 
-        # Only chords that begin with designated letters
+        # Select only chords, i.e. words beginning with letters 'A' to 'G'
         raw_chords = [chord for chord in song_list if chord[0] in letters]
 
         # Delete 'chords' and 'chorus'
