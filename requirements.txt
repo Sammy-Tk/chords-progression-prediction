@@ -13,11 +13,11 @@ google-cloud-storage
 pyarrow
 
 #mlflow~=1.26.1
-mlflow
+#mlflow
 
 python-dotenv
-prefect<2
-prefect[viz]
+#prefect<2
+#prefect[viz]
 psycopg2-binary
 
 # API
